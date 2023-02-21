@@ -1,0 +1,7 @@
+{
+    "MailHostname": "batch.domain.org",
+    "SlackURL": "https://hooks.slack.com/services/AAAAA",
+    "AllowedFrom": [
+        "root@supercomputer.org"
+    ]
+}

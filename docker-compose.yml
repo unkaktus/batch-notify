@@ -1,0 +1,11 @@
+---
+version: "2.1"
+services:
+  nameserver:
+    build:
+      context: .
+    image: batch-notify
+    container_name: batch-notify
+    restart: unless-stopped
+    ports:
+      - "25:25"
