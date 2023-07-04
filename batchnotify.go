@@ -70,16 +70,23 @@ func ParseEvent(data []byte) (*Event, error) {
 
 	var event *Event
 	switch {
-	case strings.HasPrefix(subject, "PBS"):
+	case strings.HasPrefix(strings.ToLower(subject), "pbs"):
 		event, err = parseEventPBS(m)
 		if err != nil {
 			return nil, fmt.Errorf("parse message: %w", err)
 		}
-	case strings.HasPrefix(subject, "SLURM"):
+	case strings.HasPrefix(strings.ToLower(subject), "slurm"):
 		event, err = parseEventSlurm(m)
 		if err != nil {
 			return nil, fmt.Errorf("parse message: %w", err)
 		}
+	default:
+		body, err := io.ReadAll(m.Body)
+		if err != nil {
+			return nil, fmt.Errorf("read message body: %w", err)
+		}
+		log.Printf("Subject: %s\nBody:\n%s", subject, body)
+		return nil, fmt.Errorf("unknown message type")
 	}
 
 	event.System = SystemName(header.Get("To"))
