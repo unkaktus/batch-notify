@@ -24,13 +24,17 @@ type SlackMessage struct {
 }
 
 type Event struct {
-	System   string
-	JobName  string
-	Status   string
-	ExitCode int
+	System       string
+	JobName      string
+	Status       string
+	ExitCode     int
+	Unrecognized string
 }
 
 func (e *Event) String() string {
+	if e.Unrecognized != "" {
+		return fmt.Sprintf("[%s] %s", e.System, e.Unrecognized)
+	}
 	return fmt.Sprintf("[%s] %s - %s", e.System, e.JobName, strings.ToLower(e.Status))
 }
 
@@ -85,8 +89,9 @@ func ParseEvent(data []byte) (*Event, error) {
 		if err != nil {
 			return nil, fmt.Errorf("read message body: %w", err)
 		}
-		log.Printf("Subject: %s\nBody:\n%s", subject, body)
-		return nil, fmt.Errorf("unknown message type")
+		event = &Event{
+			Unrecognized: fmt.Sprintf("Subject: %s\nBody:\n%s", subject, body),
+		}
 	}
 
 	event.System = SystemName(header.Get("To"))
