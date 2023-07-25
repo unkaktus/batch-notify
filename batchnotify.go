@@ -55,7 +55,14 @@ func parseEventPBS(m *mail.Message) (*Event, error) {
 func parseEventSlurm(m *mail.Message) (*Event, error) {
 	event := &Event{}
 
-	sp := strings.Split(m.Header.Get("Subject"), " ")
+	subject := m.Header.Get("Subject")
+	slurmIndex := strings.Index(strings.ToLower(subject), "slurm")
+	if slurmIndex == -1 {
+		return nil, fmt.Errorf("no slurm indicator in the subject")
+	}
+	subject = subject[slurmIndex:]
+
+	sp := strings.Split(subject, " ")
 	event.JobName = strings.Split(sp[2], "=")[1]
 	event.Status = strings.TrimRight(sp[3], ",")
 
@@ -74,12 +81,12 @@ func ParseEvent(data []byte) (*Event, error) {
 
 	var event *Event
 	switch {
-	case strings.HasPrefix(strings.ToLower(subject), "pbs"):
+	case strings.Contains(strings.ToLower(subject), "pbs"):
 		event, err = parseEventPBS(m)
 		if err != nil {
 			return nil, fmt.Errorf("parse message: %w", err)
 		}
-	case strings.HasPrefix(strings.ToLower(subject), "slurm"):
+	case strings.Contains(strings.ToLower(subject), "slurm"):
 		event, err = parseEventSlurm(m)
 		if err != nil {
 			return nil, fmt.Errorf("parse message: %w", err)
