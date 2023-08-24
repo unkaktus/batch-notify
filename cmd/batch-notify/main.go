@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"io/ioutil"
 	"log"
 	"os"
@@ -10,8 +11,10 @@ import (
 )
 
 func main() {
+	configFileName := flag.String("config", "batch-notify.json", "Path to the config file")
+	flag.Parse()
 	config := &batchnotify.Config{}
-	configFile, err := os.Open("config.json")
+	configFile, err := os.Open(*configFileName)
 	if err != nil {
 		log.Fatalf("open config file: %v", err)
 	}
